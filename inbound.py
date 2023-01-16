@@ -4,7 +4,7 @@ from urllib.parse import urlparse, parse_qs
 import sqlite3
 
 hostName = "0.0.0.0"
-serverPort = 8887
+serverPort = 8888
 sqliteConnection = sqlite3.connect('sql.db')
 cursor = sqliteConnection.cursor()
 query = 'CREATE TABLE IF NOT EXISTS logs (id INTEGER PRIMARY KEY AUTOINCREMENT, dtg int, state text, device text);'
