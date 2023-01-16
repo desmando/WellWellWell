@@ -25,11 +25,33 @@ class MyServer(BaseHTTPRequestHandler):
                 cursor.execute(query)
                 sqliteConnection.commit()
                 if ( dict_result['state'][0]=="pumpOn" ):
-                    query = "insert into readings(device, onTime) values ("+dict_result['device'][0]+"Pump, "+str(int(time.time()))+");"
+                    query = "insert into readings(device, onTime) values ('"+dict_result['device'][0]+"Pump', "+str(int(time.time()))+");"
+                    self.wfile.write(bytes(query, "utf-8"))
                     cursor.execute(query)
                     sqliteConnection.commit()
                 if ( dict_result['state'][0]=="floatOn" ):
-                    query = "insert into readings(device, onTime) values ("+dict_result['device'][0]+"Float, "+str(int(time.time()))+");"
+                    query = "insert into readings(device, onTime) values ('"+dict_result['device'][0]+"Float', "+str(int(time.time()))+");"
+                    self.wfile.write(bytes(query, "utf-8"))
+                    cursor.execute(query)
+                    sqliteConnection.commit()
+                if ( dict_result['state'][0]=="pumpOff" ):
+                    query = "select onTime from readings where offTime is null and device='"+dict_result['device'][0]+"Pump' order by offTime desc limit 1;"
+                    cursor.execute(query)
+                    data = cursor.fetchall()
+                    pumpOn = data[0][0]
+                    runTime = int(time.time())-pumpOn
+                    query = "update readings set offTime="+str(int(time.time()))+", duration="+str(runTime)+" where device='"  + dict_result['device'][0]+"Pump' and onTime="+str(pumpOn)+";"
+                    self.wfile.write(bytes(query, "utf-8"))
+                    cursor.execute(query)
+                    sqliteConnection.commit()
+                if ( dict_result['state'][0]=="floatOff" ):
+                    query = "select onTime from readings where offTime is null and device='"+dict_result['device'][0]+"Float' order by offTime desc limit 1;"
+                    cursor.execute(query)
+                    data = cursor.fetchall()
+                    pumpOn = data[0][0]
+                    runTime = int(time.time())-pumpOn
+                    query = "update readings set offTime="+str(int(time.time()))+", duration="+str(runTime)+" where device='"  + dict_result['device'][0]+"Float' and onTime="+str(pumpOn)+";"
+                    self.wfile.write(bytes(query, "utf-8"))
                     cursor.execute(query)
                     sqliteConnection.commit()
 
